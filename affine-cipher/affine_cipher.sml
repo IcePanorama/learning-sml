@@ -29,25 +29,21 @@ end
 fun removeWhitespace nil       = nil
   | removeWhitespace [c]       = if Char.isSpace c then nil else [c]
   | removeWhitespace (c::tail) =
-  let
-    val rest = removeWhitespace tail
-  in
-    if Char.isSpace c then
-      rest
-    else
-      [c] @ rest
-  end
+    let
+      val rest = removeWhitespace tail
+    in
+      if Char.isSpace c then
+        rest
+      else
+        [c] @ rest
+    end
 ;
 
 (* Returns distance from #"a". *)
-fun getIdxOfChar c =
-  if not (Char.isAlpha c) then
-    raise Fail ((Char.toString c) ^ " is not a letter.")
-  else
-    (Char.ord c) - (Char.ord #"a")
-;
+fun getIdxOfChar c = (Char.ord c) - (Char.ord #"a");
 
-fun idxToChar i = Char.chr (i + Char.ord(#"a"));
+(* Where `i` should be the offset from #"a". *)
+fun getCharFromIdx i = Char.chr (i + Char.ord(#"a"));
 
 (* See: https://en.wikipedia.org/wiki/Affine_cipher. *)
 fun encryptStr ("", a, b)  = ""
@@ -58,7 +54,7 @@ fun encryptStr ("", a, b)  = ""
       val strNoWhitespace  = removeWhitespace (String.explode str)
       val indices          = map getIdxOfChar strNoWhitespace
       val encryptedIndices = map (fn i => (((a * i) + b) mod 26)) indices
-      val encryptedChars   = map idxToChar encryptedIndices
+      val encryptedChars   = map getCharFromIdx encryptedIndices
 
       fun outputBuilder (nil, idx)         = nil
         | outputBuilder (head::tail, idx)  =
@@ -98,7 +94,7 @@ fun decryptStr ("", a, b)  = ""
       val indices          = map getIdxOfChar strNoWhitespace
       val invA             = modularMultiplicativeInv (a, 26)
       val lhsVals          = map (fn y => (invA * (y - b)) mod 26) indices
-      val decryptedIndices = map idxToChar lhsVals
+      val decryptedIndices = map getCharFromIdx lhsVals
     in
       String.implode decryptedIndices
     end
@@ -110,3 +106,5 @@ val keyB  = 13;
 val encryptedOutput = encryptStr (input, keyA, keyB);
 print (encryptedOutput ^ "\n");
 print ((decryptStr (encryptedOutput, keyA, keyB)) ^ "\n");
+
+(* TODO: handle command-line input. *)
