@@ -18,9 +18,8 @@ fun isCoprime (x, y) =
 ;
 
 (* See: https://en.wikipedia.org/wiki/Affine_cipher. *)
-fun encryptStr (str, a, b) =
-  if (str = "") then ""
-  else
+fun encryptStr ("", a, b) = ""
+  | encryptStr (str, a, b) =
     let
       fun getIdxOfChar c =
         if not (Char.isAlpha c) then
