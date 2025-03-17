@@ -21,13 +21,28 @@ fun isCoprime (x, y) =
 fun encryptStr ("", a, b) = ""
   | encryptStr (str, a, b) =
     let
+      (* Returns distance from #"a". *)
       fun getIdxOfChar c =
         if not (Char.isAlpha c) then
           raise Fail ((Char.toString c) ^ " is not a letter.")
         else
           (Char.ord c) - (Char.ord #"a")
 
-      val indices          = map getIdxOfChar (String.explode (str))
+      (* Returns the given list of characters w/o any whitespace chars. *)
+      fun removeWhitespace nil       = nil
+        | removeWhitespace [c]       = if Char.isSpace c then nil else [c]
+        | removeWhitespace (c::tail) =
+          let
+            val rest = removeWhitespace tail
+          in
+            if Char.isSpace c then
+              rest
+            else
+              [c] @ rest
+          end
+
+      val strNoWhitespace  = removeWhitespace (String.explode str)
+      val indices          = map getIdxOfChar (strNoWhitespace)
       val encryptedIndices = map (fn x => ((a * x + b) mod 26)) indices
       fun idxToChar i      = Char.chr (i + Char.ord(#"a"))
       val encryptedChars   = map idxToChar encryptedIndices
@@ -43,9 +58,9 @@ fun encryptStr ("", a, b) = ""
     end
 ;
 
-val input = "test";
-val keyA  = 5;
-val keyB  = 7;
+val input = "the quick brown fox jumps over the lazy dog";
+val keyA  = 19;
+val keyB  = 13;
 val _     =
   if not (isCoprime (keyA, 26)) then
     raise Fail ("keyA (" ^ (Int.toString keyA) ^ ") and 26 are not coprimes.")
