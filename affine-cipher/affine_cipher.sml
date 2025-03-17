@@ -100,11 +100,47 @@ fun decryptStr ("", a, b)  = ""
     end
 ;
 
+(*
 val input = "the quick brown fox jumps over the lazy dog";
 val keyA  = 19;
 val keyB  = 13;
 val encryptedOutput = encryptStr (input, keyA, keyB);
 print (encryptedOutput ^ "\n");
 print ((decryptStr (encryptedOutput, keyA, keyB)) ^ "\n");
+*)
 
 (* TODO: handle command-line input. *)
+fun throwImproperUsageErr () =
+  let
+    val usage = "Usage:\n\
+      \\t./affine_cipher [OPTIONS] -a [A KEY] -b [B KEY] [ACTION]\n\n\
+      \Actions:\n\
+      \\t-e \"[input]\" # for encryption\n\
+      \\t-d \"[input]\" # for decryption"
+  in
+    raise (Fail ("Improper usage error.\n" ^ usage))
+  end
+;
+
+fun processArgs nil = throwImproperUsageErr ()
+  | processArgs (flag::arg::tail) =
+    let
+      fun unrecognizedFlagErr f =
+        let
+          val _ = print ("Unrecognized flag: " ^ f ^ "\n")
+        in
+          throwImproperUsageErr ()
+        end
+    in
+      (case (String.map Char.toLower flag) of
+        "-a" => NONE
+      | "-b" => NONE
+      | "-e" => NONE
+      | "-d" => NONE
+      | f    => (unrecognizedFlagErr f))
+    end
+  | processArgs _ = NONE
+;
+
+val args = CommandLine.arguments ();
+val _ = processArgs args;
