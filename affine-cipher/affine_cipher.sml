@@ -1,32 +1,33 @@
 (* affine_cypher
  * See: https://exercism.org/tracks/sml/exercises/affine-cipher. *)
 
-(* FIXME: can this go inside of `encryptStr`? *)
-fun getIdxOfChar c =
-  if not (Char.isAlpha c) then
-    raise Fail ((Char.toString c) ^ " is not a letter.")
-  else
-    (Char.ord c) - (Char.ord #"a")
-;
-
-(* See: https://en.wikipedia.org/wiki/Euclidean_algorithm *)
-fun euclidGCF (a, b) =
-  if a < b then
-    euclidGCF (b, a)
-  else if b = 0 then
-    a
-  else
-    euclidGCF (b, a mod b)
-;
-
 (* See: https://en.wikipedia.org/wiki/Coprime_integers. *)
-fun isCoprime (x, y) = (euclidGCF (x, y)) = 1;
+fun isCoprime (x, y) =
+  let
+    (* See: https://en.wikipedia.org/wiki/Euclidean_algorithm *)
+    fun euclidGCF (a, b) =
+      if a < b then
+        euclidGCF (b, a)
+      else if b = 0 then
+        a
+      else
+        euclidGCF (b, a mod b)
+  in
+    (euclidGCF (x, y)) = 1
+  end
+;
 
 (* See: https://en.wikipedia.org/wiki/Affine_cipher. *)
 fun encryptStr (str, a, b) =
   if (str = "") then ""
   else
     let
+      fun getIdxOfChar c =
+        if not (Char.isAlpha c) then
+          raise Fail ((Char.toString c) ^ " is not a letter.")
+        else
+          (Char.ord c) - (Char.ord #"a")
+
       val indices          = map getIdxOfChar (String.explode (str))
       val encryptedIndices = map (fn x => ((a * x + b) mod 26)) indices
       fun idxToChar i      = Char.chr (i + Char.ord(#"a"))
